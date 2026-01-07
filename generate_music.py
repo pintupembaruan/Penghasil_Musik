@@ -2,22 +2,23 @@ import os
 import datetime
 import sys
 
-# Memaksa Python melihat folder audiocraft lokal hasil git clone
-sys.path.insert(0, os.path.abspath("."))
+# Tambahkan folder audiocraft hasil clone ke path sistem
+sys.path.append(os.path.join(os.getcwd(), "audiocraft"))
 
 def generate_bot_music():
     try:
         import torch
+        # Import langsung dari folder lokal
         from audiocraft.models import MusicGen
         from audiocraft.data.audio import audio_write
         
-        print("--- Memulai Bot Musik Islami ---")
+        print("Model AI Siap. Menggunakan CPU untuk memproses...")
         model = MusicGen.get_pretrained('facebook/musicgen-small')
         model.set_generation_params(duration=30) 
 
         prompt = "Spiritual Islamic background music, acoustic oud, meditative ney flute, high quality"
 
-        print("Sedang memproses AI (30 detik)...")
+        print("Generating Audio (30 seconds)...")
         wav = model.generate([prompt], progress=True)
 
         output_dir = 'music'
@@ -28,13 +29,13 @@ def generate_bot_music():
         filepath = f'{output_dir}/islamic_track_{timestamp}'
 
         for one_wav in wav:
-            # Fungsi ini akan menggunakan 'av' dari conda secara otomatis
+            # Menggunakan biner 'av' yang sudah aman di instal via conda
             audio_write(filepath, one_wav.cpu(), model.sample_rate, strategy="loudness", format="mp3")
         
-        print(f"BERHASIL! Cek folder '{output_dir}'")
+        print(f"SUKSES! File MP3 tersedia di: {filepath}.mp3")
 
     except Exception as e:
-        print(f"TERJADI ERROR: {str(e)}")
+        print(f"FATAL ERROR: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
