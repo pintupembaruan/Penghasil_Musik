@@ -19,31 +19,26 @@ jobs:
           python-version: "3.10"
           activate-environment: music-bot
 
-      - name: Install Binaries (Conda)
+      - name: Install All-in-One Conda & Pip
         shell: bash -l {0}
         run: |
-          # Instal ffmpeg dan av biner lewat conda (ini kunci keberhasilan)
+          # 1. Instal biner AV dan FFmpeg (Anti-Error Build)
           conda install -y -c conda-forge ffmpeg av pkg-config
-
-      - name: Install AI Dependencies (Tanpa Audiocraft)
-        shell: bash -l {0}
-        run: |
-          python -m pip install --upgrade pip
+          
+          # 2. Instal Torch CPU
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          # Instal semua teman-temannya audiocraft agar sistem siap
+          
+          # 3. Instal dependensi pendukung secara manual
           pip install pandas omegaconf hydra-core sentencepiece einops local-attention flashy trendy demucs julius encodec docopt pesq
-
-      - name: Manual Bypass Audiocraft
-        shell: bash -l {0}
-        run: |
-          # Kita download kodenya saja, jangan di-install via pip!
-          git clone https://github.com/facebookresearch/audiocraft.git temp_folder
-          mv temp_folder/audiocraft .
-          rm -rf temp_folder
-
+          
+          # 4. Ambil kode Audiocraft (Clone)
+          git clone https://github.com/facebookresearch/audiocraft.git
+          
       - name: Generate Music
         shell: bash -l {0}
-        run: python generate_music.py
+        run: |
+          # Jalankan skrip tanpa melakukan 'pip install .'
+          python generate_music.py
 
       - name: Commit and Push
         shell: bash -l {0}
