@@ -8,15 +8,13 @@ def generate_bot_music():
         from audiocraft.models import MusicGen
         from audiocraft.data.audio import audio_write
         
-        print("Model Loading...")
+        print("Memuat Model AI...")
         model = MusicGen.get_pretrained('facebook/musicgen-small')
-        
-        # Tes 30 detik dulu agar cepat & hemat memori
         model.set_generation_params(duration=30) 
 
-        prompt = "Calm spiritual Islamic background music, oud instrument, peaceful ney flute, high quality"
+        prompt = "Deep spiritual Islamic ney flute and oud, peaceful atmosphere, high quality"
 
-        print("Generating Audio...")
+        print("Sedang membuat musik (30 detik)...")
         wav = model.generate([prompt], progress=True)
 
         output_dir = 'music'
@@ -27,12 +25,14 @@ def generate_bot_music():
         filepath = f'{output_dir}/islamic_track_{timestamp}'
 
         for one_wav in wav:
+            # Di sini library 'av' akan digunakan untuk menyimpan MP3
             audio_write(filepath, one_wav.cpu(), model.sample_rate, strategy="loudness", format="mp3")
         
-        print(f"SUKSES: File tersimpan di {filepath}.mp3")
+        print(f"BERHASIL: File tersimpan di {filepath}.mp3")
 
     except Exception as e:
-        print(f"ERROR: {str(e)}")
+        print(f"TERJADI ERROR: {str(e)}")
         sys.exit(1)
+
 if __name__ == "__main__":
     generate_bot_music()
