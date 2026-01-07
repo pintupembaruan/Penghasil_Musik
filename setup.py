@@ -5,9 +5,6 @@ setup(
     version="1.1.0",
     packages=find_packages(),
     install_requires=[
-        'torch',
-        'torchaudio',
-        'audiocraft',
+        # Dependensi utama sudah dihandle di workflow untuk kestabilan
     ],
-    description="Bot penghasil musik Islami original",
 )
