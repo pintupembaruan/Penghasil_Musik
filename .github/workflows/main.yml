@@ -1,0 +1,35 @@
+name: Islamic Music Bot Generator
+
+on:
+  workflow_dispatch: # Bisa dijalankan manual
+  schedule:
+    - cron: '0 0 * * 0' # Berjalan otomatis setiap hari Minggu jam 12 malam
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          sudo apt-get install ffmpeg
+
+      - name: Generate Music
+        run: python generate_music.py
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          git add music/*.mp3
+          git commit -m "Add new original Islamic music $(date)"
+          git push
