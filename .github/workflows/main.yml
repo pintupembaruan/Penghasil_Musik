@@ -16,17 +16,25 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+          cache: 'pip' # Mempercepat build berikutnya
 
-      - name: Install System Dependencies (Fix FFmpeg Error)
+      - name: Install Critical System Libraries
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev pkg-config
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg pkg-config \
+            libavformat-dev libavcodec-dev libavdevice-dev \
+            libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
 
-      - name: Install Python Dependencies
+      - name: Install Python Dependencies (Pre-compiled)
         run: |
           python -m pip install --upgrade pip
+          # Menggunakan versi CPU saja agar lebih ringan dan stabil
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          # Install library pendukung sebelum audiocraft
+          pip install numpy omegaconf hyra-core sentencepiece
+          # Install audiocraft langsung dari sumbernya
           pip install git+https://github.com/facebookresearch/audiocraft.git
+          # Install sisa dependensi dari setup.py
           pip install .
 
       - name: Generate Music
@@ -36,6 +44,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          git add music/*.mp3
-          git commit -m "Add new 1-minute original Islamic music"
+          # Pastikan folder music ada agar tidak error saat git add
+          mkdir -p music
+          git add music/*.mp3 || echo "No files to add"
+          git commit -m "Add new original Islamic music" || echo "Nothing to commit"
           git push
