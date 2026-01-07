@@ -12,8 +12,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # LANGKAH KRUSIAL: Buat file README.md di awal sebelum install apapun
-      - name: Pre-setup Files
+      # INI KUNCINYA: Membuat file README dan setup sebelum pip berjalan
+      - name: Create Dummy Files for Dependencies
         run: |
           touch README.md
           echo "import setuptools; setuptools.setup(name='bot')" > setup.py
@@ -35,7 +35,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          # Instal library pendukung secara manual
+          # Instal library secara berurutan
           pip install pandas omegaconf hydra-core sentencepiece einops local-attention flashy demucs julius encodec docopt pesq
 
       - name: Manual Clone Audiocraft
@@ -48,7 +48,7 @@ jobs:
       - name: Generate Music
         shell: bash -l {0}
         run: |
-          # Jalankan skrip utama
+          # Pastikan tidak ada konflik file saat eksekusi
           python generate_music.py
 
       - name: Commit and Push
