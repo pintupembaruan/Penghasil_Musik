@@ -12,29 +12,29 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
-          cache: 'pip' # Mempercepat build berikutnya
+          python-version: '3.10'
 
-      - name: Install Critical System Libraries
+      - name: Install System Dependencies
         run: |
-          sudo apt-get update -y
+          sudo apt-get update
           sudo apt-get install -y ffmpeg pkg-config \
             libavformat-dev libavcodec-dev libavdevice-dev \
             libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
 
-      - name: Install Python Dependencies (Pre-compiled)
+      - name: Install Python Packages
         run: |
           python -m pip install --upgrade pip
-          # Menggunakan versi CPU saja agar lebih ringan dan stabil
+          # KUNCI UTAMA: Instal 'av' dalam bentuk biner agar tidak build wheel
+          pip install --only-binary=:all: av
+          # Instal Torch versi CPU agar tidak berat
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          # Install library pendukung sebelum audiocraft
-          pip install numpy omegaconf hyra-core sentencepiece
-          # Install audiocraft langsung dari sumbernya
+          # Instal dependensi lain secara manual untuk keamanan
+          pip install numpy omegaconf hydra-core sentencepiece
+          # Instal Audiocraft langsung
           pip install git+https://github.com/facebookresearch/audiocraft.git
-          # Install sisa dependensi dari setup.py
           pip install .
 
       - name: Generate Music
@@ -44,8 +44,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
-          # Pastikan folder music ada agar tidak error saat git add
           mkdir -p music
-          git add music/*.mp3 || echo "No files to add"
-          git commit -m "Add new original Islamic music" || echo "Nothing to commit"
+          git add music/*.mp3 || echo "No new files"
+          git commit -m "Add new 1-minute original Islamic music" || echo "Nothing to commit"
           git push
