@@ -19,24 +19,26 @@ jobs:
           python-version: "3.10"
           activate-environment: music-bot
 
-      - name: Install All Binaries via Conda
+      - name: Install Binaries (Anti-Build)
         shell: bash -l {0}
         run: |
-          # Instal ffmpeg dan av biner langsung (Anti-Error Build)
-          conda install -y -c conda-forge ffmpeg av pkg-config python-build
+          # Instal ffmpeg dan av biner yang sudah jadi lewat conda
+          conda install -y -c conda-forge ffmpeg av
           
-      - name: Install AI Libraries
+      - name: Install AI Dependencies
         shell: bash -l {0}
         run: |
-          # Instal Torch versi CPU
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          
-          # Instal audiocraft TANPA membiarkan dia membangun 'av' sendiri
-          # Kita gunakan --no-build-isolation agar dia pakai 'av' yang sudah ada di Conda
-          pip install --no-build-isolation git+https://github.com/facebookresearch/audiocraft.git
-          
-          # Instal sisa dependensi pendukung
+          # Instal dependensi audiocraft KECUALI audiocraft itu sendiri
           pip install pandas omegaconf hydra-core sentencepiece einops local-attention flashy trendy demucs julius encodec docopt pesq
+
+      - name: Clone Audiocraft Manual
+        shell: bash -l {0}
+        run: |
+          # Kita ambil kodenya saja tanpa menginstalnya ke pip (untuk menghindari error 'av')
+          git clone https://github.com/facebookresearch/audiocraft.git temp_audiocraft
+          mv temp_audiocraft/audiocraft .
+          rm -rf temp_audiocraft
 
       - name: Generate Music
         shell: bash -l {0}
