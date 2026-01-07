@@ -2,14 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="islamic-music-bot",
-    version="1.0.0",
+    version="1.1.0",
     packages=find_packages(),
     install_requires=[
         'torch',
         'torchaudio',
         'audiocraft',
-        'setuptools'
     ],
-    author="Bot",
-    description="Automated Original Islamic Music Generator",
+    description="Bot penghasil musik Islami original",
 )
