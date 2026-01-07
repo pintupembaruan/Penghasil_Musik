@@ -12,45 +12,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.10'
+          auto-update-conda: true
+          python-version: "3.10"
+          activate-environment: music-bot
 
-      - name: Install FFmpeg System Libraries
+      - name: Install Multimedia Libraries via Conda
+        shell: bash -l {0}
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg libavcodec-dev libavdevice-dev libavfilter-dev libavformat-dev libavutil-dev libswresample-dev libswscale-dev pkg-config
-
-      - name: Install Python Packages (No-Build Mode)
+          # Conda menginstal FFmpeg dan PyAV versi biner yang sudah jadi (Anti-Error Build)
+          conda install -y -c conda-forge ffmpeg av pkg-config
+          
+      - name: Install AI Libraries
+        shell: bash -l {0}
         run: |
-          python -m pip install --upgrade pip
-          # Set Path agar pkg-config menemukan library FFmpeg
-          export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
-          
-          # Paksa instalasi biner 'av' agar tidak terjadi build wheel
-          pip install --only-binary=:all: av
-          
-          # Instal Torch versi CPU
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          
-          # Instal Audiocraft TANPA dependensi yang memicu build ulang
-          pip install --no-deps git+https://github.com/facebookresearch/audiocraft.git
-          
-          # Instal dependensi pendukung Audiocraft secara manual
-          pip install pandas typing-extensions omegaconf hydra-core sentencepiece einops local-attention flashy trendy
-          
-          # Instal project ini
-          pip install .
+          pip install git+https://github.com/facebookresearch/audiocraft.git
+          pip install pandas omegaconf hydra-core sentencepiece einops local-attention flashy trendy
 
       - name: Generate Music
+        shell: bash -l {0}
         run: python generate_music.py
 
       - name: Commit and Push
+        shell: bash -l {0}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
           mkdir -p music
-          git add music/*.mp3 || echo "No new files"
-          git commit -m "Add new 1-minute original Islamic music" || echo "No changes"
+          git add music/*.mp3 || echo "No files"
+          git commit -m "Add new original Islamic music" || echo "No changes"
           git push
