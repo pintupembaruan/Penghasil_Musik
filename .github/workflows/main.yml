@@ -19,18 +19,27 @@ jobs:
           python-version: "3.10"
           activate-environment: music-bot
 
-      - name: Install Multimedia Libraries via Conda
+      - name: Install Multimedia Binaries
         shell: bash -l {0}
         run: |
-          # Conda menginstal FFmpeg dan PyAV versi biner yang sudah jadi (Anti-Error Build)
+          # Kita instal biner av yang sudah jadi agar tidak perlu build wheel lagi
           conda install -y -c conda-forge ffmpeg av pkg-config
-          
-      - name: Install AI Libraries
+
+      - name: Install AI Libraries (Step by Step)
         shell: bash -l {0}
         run: |
+          python -m pip install --upgrade pip
+          # 1. Instal Torch CPU
           pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          pip install git+https://github.com/facebookresearch/audiocraft.git
-          pip install pandas omegaconf hydra-core sentencepiece einops local-attention flashy trendy
+          
+          # 2. Instal semua teman-temannya audiocraft secara manual
+          pip install pandas omegaconf hydra-core sentencepiece einops local-attention flashy trendy demucs julius encodec docopt pesq
+          
+          # 3. KUNCI UTAMA: Instal audiocraft TANPA dependensi (agar dia tidak mencoba instal 'av' lagi)
+          pip install --no-deps git+https://github.com/facebookresearch/audiocraft.git
+          
+          # 4. Instal project lokal
+          pip install .
 
       - name: Generate Music
         shell: bash -l {0}
